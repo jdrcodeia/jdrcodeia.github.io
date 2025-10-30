@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>¡Feliz Cumpleaños Maria Antonia!</title>
+    <!-- Carga de Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Carga de p5.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.0/p5.min.js"></script>
+    <!-- Carga de fuentes de Google -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&family=Pacifico&display=swap" rel="stylesheet">
+    <style>
+        /* Estilos personalizados */
+        body {
+            font-family: 'Inter', sans-serif;
+            /* Este color de fondo debe coincidir con el usado en p5.js para el efecto de luna */
+            background-color: #fbcfe8; /* pink-200, un rosa suave y femenino */
+            overflow: hidden; /* Evita el scroll */
+        }
+        
+        /* Fuente especial para los títulos */
+        .title-font {
+            font-family: 'Pacifico', cursive;
+        }
+
+        /* Estilos para el canvas de p5.js */
+        #p5-canvas-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0; /* Detrás del contenido */
+            background: linear-gradient(135deg, #fce7f3, #fbcfe8, #f9a8d4); /* Gradiente suave de rosas */
+        }
+
+        /* Contenido principal */
+        #main-content {
+            position: relative;
+            z-index: 10; /* Delante del canvas */
+        }
+    </style>
+</head>
+<body class="text-white">
+
+    <!-- Contenedor para el canvas de p5.js -->
+    <div id="p5-canvas-container"></div>
+
+    <!-- Contenido de la tarjeta -->
+    <div id="main-content" class="min-h-screen flex items-center justify-center p-4">
+        
+        <div class="w-full max-w-md bg-gray-900 bg-opacity-80 backdrop-blur-sm rounded-2xl shadow-2xl p-8 pt-0 text-center border-2 border-pink-500">
+            
+            <!-- Imagen del personaje -->
+            <img src="kuromi.png" 
+                 alt="Kuromi" 
+                 class="w-40 h-40 mx-auto -mt-20 mb-4 object-contain"
+                 onerror="this.src='https://placehold.co/160x160/1f2937/f472b6?text=Kuromi'; this.onerror=null;">
+
+            <!-- Detalles de la invitación -->
+            <h2 class="text-pink-400 text-xl font-bold">¡Estás invitada!</h2>
+            
+            <h1 class="title-font text-5xl text-white my-2">Maria Antonia</h1>
+            
+            <p class="text-2xl title-font text-pink-300 mb-6">¡Celebra mi cumpleaños!</p>
+            
+            <!-- Lista de datos -->
+            <ul class="text-left space-y-4 text-lg text-gray-200">
+                <li class="flex items-center">
+                    <!-- Icono de Calendario (SVG) -->
+                    <svg class="w-6 h-6 mr-3 text-pink-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                    Domingo, 9 de Noviembre 2025
+                </li>
+                <li class="flex items-center">
+                    <!-- Icono de Reloj (SVG) -->
+                    <svg class="w-6 h-6 mr-3 text-pink-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                    3:30 PM
+                </li>
+                <li class="flex items-center">
+                    <!-- Icono de Lugar (SVG) -->
+                    <svg class="w-6 h-6 mr-3 text-pink-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                    Cra 50 A # 26-36
+                </li>
+            </ul>
+
+        </div>
+    </div>
+
+    <!-- Script de p5.js -->
+    <script>
+        // --- CÓDIGO P5.JS ---
+        let paperPlanes = [];
+        const paperColors = [
+            [252, 231, 243], // pink-100
+            [249, 168, 212], // pink-300
+            [244, 114, 182], // pink-400
+            [255, 255, 255]  // white
+        ];
+
+        function setup() {
+            // Crea el canvas y lo asigna al contenedor
+            let canvas = createCanvas(windowWidth, windowHeight);
+            canvas.parent('p5-canvas-container');
+            
+            // Crea los aviones iniciales
+            createInitialPlanes();
+        }
+
+        function createInitialPlanes() {
+            paperPlanes = [];
+            for (let i = 0; i < 20; i++) {
+                let x = random(width);
+                let y = random(height);
+                paperPlanes.push(new PaperPlane(x, y));
+            }
+        }
+
+        function draw() {
+            clear();
+            
+            // Actualiza y dibuja cada avión
+            for (let i = paperPlanes.length - 1; i >= 0; i--) {
+                paperPlanes[i].update();
+                paperPlanes[i].display();
+                
+                // Si el avión está fuera de la pantalla, lo reposiciona
+                if (paperPlanes[i].isOffscreen()) {
+                    paperPlanes[i].reset();
+                }
+            }
+        }
+
+        // Ajusta el canvas si la ventana cambia de tamaño
+        function windowResized() {
+            resizeCanvas(windowWidth, windowHeight);
+            createInitialPlanes();
+        }
+
+        // Función de interacción - crea nuevos aviones al hacer clic
+        function mousePressed() {
+            // Crea 6 nuevos aviones en el punto del clic
+            for (let i = 0; i < 6; i++) {
+                let angle = random(TWO_PI);
+                let speed = random(2, 4);
+                let plane = new PaperPlane(mouseX, mouseY);
+                plane.vx = cos(angle) * speed;
+                plane.vy = sin(angle) * speed;
+                paperPlanes.push(plane);
+            }
+        }
+        
+        // --- Clase PaperPlane ---
+        class PaperPlane {
+            constructor(x, y) {
+                this.reset(x, y);
+            }
+
+            reset(x, y) {
+                // Si no se proporcionan coordenadas, elige un lado aleatorio para aparecer
+                if (x === undefined || y === undefined) {
+                    let side = floor(random(4));
+                    switch(side) {
+                        case 0: // Arriba
+                            x = random(width);
+                            y = -50;
+                            break;
+                        case 1: // Derecha
+                            x = width + 50;
+                            y = random(height);
+                            break;
+                        case 2: // Abajo
+                            x = random(width);
+                            y = height + 50;
+                            break;
+                        case 3: // Izquierda
+                            x = -50;
+                            y = random(height);
+                            break;
+                    }
+                }
+
+                this.x = x;
+                this.y = y;
+                this.size = random(20, 30);
+                this.rotation = random(TWO_PI);
+                this.rotationSpeed = random(-0.02, 0.02);
+                this.color = random(paperColors);
+                this.trail = [];
+                this.maxTrail = 10;
+                
+                // Velocidad dirigida hacia el centro de la pantalla con variación
+                let angleToCenter = atan2(height/2 - y, width/2 - x);
+                let speed = random(1, 3);
+                this.vx = cos(angleToCenter + random(-0.5, 0.5)) * speed;
+                this.vy = sin(angleToCenter + random(-0.5, 0.5)) * speed;
+                
+                this.wobble = random(TWO_PI);
+                this.wobbleSpeed = random(0.05, 0.1);
+                this.wobbleAmount = random(0.5, 2);
+            }
+
+            update() {
+                // Actualiza posición con velocidad
+                this.x += this.vx;
+                this.y += this.vy;
+                
+                // Efecto de ondulación
+                this.wobble += this.wobbleSpeed;
+                this.x += sin(this.wobble) * this.wobbleAmount;
+                this.y += cos(this.wobble) * this.wobbleAmount;
+                
+                // Actualiza rotación
+                this.rotation += this.rotationSpeed;
+                
+                // Actualiza el rastro
+                this.trail.push({x: this.x, y: this.y});
+                if (this.trail.length > this.maxTrail) {
+                    this.trail.shift();
+                }
+            }
+
+            display() {
+                push();
+                translate(this.x, this.y);
+                rotate(this.rotation);
+
+                // Dibuja el rastro
+                if (this.trail.length > 1) {
+                    noFill();
+                    beginShape();
+                    for (let i = 0; i < this.trail.length; i++) {
+                        let p = this.trail[i];
+                        let alpha = map(i, 0, this.trail.length, 30, 120);
+                        stroke(...this.color, alpha);
+                        vertex(p.x - this.x, p.y - this.y);
+                    }
+                    endShape();
+                }
+
+                // Dibuja el avión
+                fill(...this.color, 200);
+                noStroke();
+
+                // Cuerpo del avión
+                beginShape();
+                vertex(0, -this.size/2);  // Punta
+                vertex(-this.size/2, this.size/2);  // Esquina izquierda
+                vertex(0, this.size/4);   // Centro inferior
+                vertex(this.size/2, this.size/2);  // Esquina derecha
+                endShape(CLOSE);
+
+                // Detalles
+                stroke(...this.color, 200);
+                strokeWeight(1);
+                line(0, -this.size/2, 0, this.size/4);  // Línea central
+                line(-this.size/2, this.size/2, 0, 0);  // Ala izquierda
+                line(this.size/2, this.size/2, 0, 0);   // Ala derecha
+
+                pop();
+            }
+
+            isOffscreen() {
+                const margin = 100;
+                return (
+                    this.x < -margin ||
+                    this.x > width + margin ||
+                    this.y < -margin ||
+                    this.y > height + margin
+                );
+            }
+        }
+    </script>
+    </script>
+</body>
+</html>
+
